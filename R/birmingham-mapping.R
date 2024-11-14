@@ -47,3 +47,48 @@ for (sex_i in names(titles)) {
   )
   save_map(map,save_name_i)
 }
+
+#########################################################
+#                     Unemployment                      #
+# (Percentage of economically active people unemployed) #
+#########################################################
+
+econ_activity <- read_excel(
+  "data/census21-brum-ward-econ-activity.xlsx"
+  ) %>%
+  mutate(
+    # Remove "(Birmingham)" from ward names
+    Ward = gsub('\\s+\\(Birmingham\\)', '', `Electoral wards and divisions`),
+    Unemployed = case_when(
+      grepl(
+        "Unemployed",
+        `Economic activity status (7 categories)`
+        ) ~ Observation,
+      TRUE ~ 0
+    ),
+    `Economically Active` = case_when(
+      grepl(
+        "Economically active",
+        `Economic activity status (7 categories)`
+      ) ~ Observation,
+      TRUE ~ 0
+    )
+  ) %>%
+  group_by(
+    Ward
+  ) %>%
+  summarise(
+    `Unemployed %` = 100 * sum(Unemployed) / sum(`Economically Active`)
+  )
+
+unemp_map <- plot_map(
+  econ_activity,
+  "Unemployed %",
+  map_type = "Ward",
+  area_name = "Birmingham",
+  style = "cont",
+  breaks = c(0, 5, 10, 15, 20, 25, 30),
+  map_title = "Percentage of Economically Active Population who are Unemployed"
+)
+save_name_i <- "output/birmnigham_unemployment.png"
+save_map(unemp_map,save_name_i)

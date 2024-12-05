@@ -1,9 +1,10 @@
 library(tidyverse)
 library(car)
 library(corrplot)
+library(performance)
 
 ggplot(data = all_variables,
-       aes(x = life_expectancy, y = claimant_count_pct, col = sex)) +
+       aes(x = claimant_count_pct, y = life_expectancy, col = sex)) +
   geom_jitter() +
   geom_smooth()
 
@@ -17,6 +18,7 @@ model_vif <- vif(model)
 # 6.066737              1.500583             10.576264              4.127275              2.274874              1.128377 
 # environment_score_avg 
 # 1.243125
+
 barplot(model_vif)
 
 # income index has very high VIF (10.58) so try removing that variable
@@ -43,8 +45,8 @@ summary(model)
 # -11.0881  -1.4117  -0.0852   1.2206  13.9330 
 # 
 # Coefficients:
-#   Estimate Std. Error  t value Pr(>|t|)    
-# (Intercept)           87.323737   0.074199 1176.878   <2e-16 ***
+#                         Estimate Std. Error  t value Pr(>|t|)    
+#   (Intercept)           87.323737   0.074199 1176.878   <2e-16 ***
 #   claimant_count_pct    -0.499840   0.018347  -27.243   <2e-16 ***
 #   sex1                  -3.259024   0.043871  -74.286   <2e-16 ***
 #   education_score_avg   -0.069677   0.001871  -37.242   <2e-16 ***
@@ -75,4 +77,17 @@ ggplot(data = all_variables,
               col = "black",
               linewidth = 1)
 
-summary(aov(model))
+# check assumptions of linear regression
+
+par(mfrow = c(2,2))
+plot(model)
+
+# durbin watson test
+durbinWatsonTest(model)
+
+# component and residual plots (checks for linear relationship)
+crPlots(model)
+
+# various diagnostic visualisations
+check_model(model)
+

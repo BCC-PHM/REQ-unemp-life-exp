@@ -236,8 +236,15 @@ prediciton =rbindlist(prediction_list) %>%
 
 birmingham_prediciton_data = birmingham_prediciton_data %>% left_join(prediciton, by="ID")
 
-
-
+# plot actual life exp against predicted life exp
+birmingham_prediciton_data |> 
+  ggplot(aes(x = life_expectancy, 
+             y = median)) +
+  geom_point() +
+  geom_abline(intercept = 0, 
+              slope = 1,
+              col = "red",
+              linewidth = 1)
 
 
 
